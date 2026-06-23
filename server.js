@@ -26,8 +26,8 @@ app.post('/api/clip', (req, res) => {
         formatCmd = `-f "bestvideo[height<=${resolution}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4`;
     }
 
-    // YOUTUBE ANTI-BOT BYPASS (Android Cihaz Simülasyonu)
-    const bypassArgs = `--extractor-args "youtube:player_client=android" --geo-bypass`;
+    // YENİ YAMA: Cookies dosyasını ve bypass komutlarını ekledik
+    const bypassArgs = `--cookies cookies.txt --extractor-args "youtube:player_client=android" --geo-bypass`;
     
     const cmd = `yt-dlp ${formatCmd} ${bypassArgs} --no-playlist --download-sections "*${start}-${end}" --force-keyframes-at-cuts "${url}" -o "${outputPath}"`;
 
