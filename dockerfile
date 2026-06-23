@@ -1,11 +1,10 @@
-FROM node:18-alpine
+FROM python:3.11-alpine
 
-# FFmpeg ve Python (yt-dlp için) kurulumu
-RUN apk add --no-cache ffmpeg python3
+# FFmpeg ve JavaScript şifrelerini çözmesi için Node.js kuruyoruz
+RUN apk add --no-cache ffmpeg nodejs npm
 
-# yt-dlp aracını indir ve kur
-RUN wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
-RUN chmod a+rx /usr/local/bin/yt-dlp
+# yt-dlp aracını tüm yan eklentileriyle birlikte resmi yoldan (pip) kuruyoruz
+RUN pip install -U yt-dlp
 
 WORKDIR /app
 COPY package*.json ./
