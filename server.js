@@ -19,28 +19,26 @@ app.post('/api/clip', (req, res) => {
     const outputFilename = `${uuidv4()}.${format === 'mp3' ? 'mp3' : 'mp4'}`;
     const outputPath = path.join(__dirname, outputFilename);
 
-    // İstenen formata göre indirme komutunu hazırla
+    // Format ayarları (Hataları azaltmak için daha stabil bir mp4 kodu eklendi)
     let formatCmd = '';
     if (format === 'mp3') {
-        // MP3 kalitesi (320 en iyi, 128 standart)
         formatCmd = `--extract-audio --audio-format mp3 --audio-quality ${resolution === '320' ? '0' : '5'}`;
     } else {
-        // Video kalitesi (Belirtilen çözünürlük veya altı)
-        formatCmd = `-f "bestvideo[height<=${resolution}]+bestaudio/best" --merge-output-format mp4`;
+        formatCmd = `-f "bestvideo[height<=${resolution}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4`;
     }
 
-    // Videonun sadece istenen saniyelerini indiren yt-dlp komutu
-    const cmd = `yt-dlp ${formatCmd} --download-sections "*${start}-${end}" --force-keyframes-at-cuts "${url}" -o "${outputPath}"`;
+    // Playlistleri atla ve zorla kes komutu
+    const cmd = `yt-dlp ${formatCmd} --no-playlist --download-sections "*${start}-${end}" --force-keyframes-at-cuts "${url}" -o "${outputPath}"`;
 
     console.log(`İşlem başladı: ${url} | Aralık: ${start} - ${end}`);
 
     exec(cmd, (error, stdout, stderr) => {
         if (error) {
             console.error("Kesme Hatası:", stderr);
-            return res.status(500).json({ error: "Video kesilirken veya indirilirken bir hata oluştu." });
+            // YENİ EKLENEN KISIM: Sabit mesaj yerine yt-dlp'nin gerçek hatasını (stderr) ekrana gönderiyoruz!
+            return res.status(500).json({ error: stderr || error.message || "Bilinmeyen bir hata oluştu." });
         }
 
-        // Kesilen dosyayı kullanıcıya indirttikten sonra sunucudan sil
         res.download(outputPath, `kirpilmis-video.${format === 'mp3' ? 'mp3' : 'mp4'}`, (err) => {
             if (fs.existsSync(outputPath)) {
                 fs.unlinkSync(outputPath); 
