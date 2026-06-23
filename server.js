@@ -19,15 +19,16 @@ app.post('/api/clip', (req, res) => {
     const outputFilename = `${uuidv4()}.${format === 'mp3' ? 'mp3' : 'mp4'}`;
     const outputPath = path.join(__dirname, outputFilename);
 
+    // Daha esnek format seçimi (Sadece çözünürlüğe bakar, en iyisini alıp mp4'e birleştirir)
     let formatCmd = '';
     if (format === 'mp3') {
         formatCmd = `--extract-audio --audio-format mp3 --audio-quality ${resolution === '320' ? '0' : '5'}`;
     } else {
-        formatCmd = `-f "bestvideo[height<=${resolution}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4`;
+        formatCmd = `-f "bestvideo[height<=${resolution}]+bestaudio/best" --merge-output-format mp4`;
     }
 
-    // YENİ YAMA: Cookies dosyasını ve bypass komutlarını ekledik
-    const bypassArgs = `--cookies cookies.txt --extractor-args "youtube:player_client=android" --geo-bypass`;
+    // ANDROID TAKLİDİ SİLİNDİ: Artık sadece senin kimlik kartını (cookies.txt) kullanacak
+    const bypassArgs = `--cookies cookies.txt --geo-bypass`;
     
     const cmd = `yt-dlp ${formatCmd} ${bypassArgs} --no-playlist --download-sections "*${start}-${end}" --force-keyframes-at-cuts "${url}" -o "${outputPath}"`;
 
