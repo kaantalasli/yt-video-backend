@@ -26,8 +26,8 @@ app.post('/api/clip', (req, res) => {
         formatCmd = `-f "bestvideo[height<=${resolution}]+bestaudio/best" --merge-output-format mp4`;
     }
 
-    // YENİ YAMA: TV ve Web istemcilerini sırayla dene, JS bulmacalarını aş.
-    const bypassArgs = `--cookies cookies.txt --extractor-args "youtube:player_client=web,tv" --geo-bypass`;
+    // YENİ YAMA: Önbelleği temizle (--rm-cache-dir) komutu eklendi.
+    const bypassArgs = `--cookies cookies.txt --rm-cache-dir --geo-bypass`;
     
     const cmd = `yt-dlp ${formatCmd} ${bypassArgs} --no-playlist --download-sections "*${start}-${end}" --force-keyframes-at-cuts "${url}" -o "${outputPath}"`;
 
